@@ -1,0 +1,97 @@
+schema: spec-driven
+
+# Project context — detected stack & architecture
+context: |
+  Tech stack: Expo SDK 57, Expo Router (typedRoutes, reactCompiler),
+    @expo/ui (native SwiftUI/Compose + universal), React 19.2 + React
+    Compiler, TypeScript 6, Reanimated 4 + Worklets, react-native-screens,
+    gesture-handler.
+  Persistence: none yet (the app is in bootstrap phase).
+  Architecture: Expo Router file-based routes under src/app/, native UI
+  rendered via @expo/ui Host + Host trees, animations via Reanimated 4
+  worklets.
+  Build system: bun (preferred), expo CLI for native; Metro for the JS
+    bundle; app.json config plugin for splash + icons + typed routes.
+  Platforms: iOS, Android, Web (expo start --web). Single
+    expo-router/entry entry.
+  Workflow: GitHub Flow — main always deployable, feature branches via
+    PR, squash merges, branch protection enabled (linear history, no
+    force-push).
+  Tooling: OpenSpec for spec-driven changes (see openspec/AGENTS.md).
+
+rules:
+  proposal:
+    - "Include rollback plan for any change that touches more than 3
+      files or affects routing, theming, or native module boundaries."
+    - "Identify affected domains under openspec/specs/."
+    - "One proposal per PR. Refactors bundled only when they share the
+      same subsystem."
+  specs:
+    - "Use Given/When/Then for every scenario."
+    - "Use RFC 2119 keywords (MUST, SHALL, SHOULD, MAY)."
+    - "Each capability MUST live in its own folder under
+      openspec/specs/{domain}/."
+    - "Delta specs MUST use ADDED / MODIFIED / REMOVED / RENAMED
+      sections."
+  design:
+    - "Document architecture decisions with rationale and alternatives
+      considered."
+    - "Include sequence or state diagrams for any flow with more than
+      2 actors or more than 3 steps."
+    - "For native UI: show @expo/ui host trees, not raw RN primitives,
+      when both work."
+  tasks:
+    - "Group by phase (infra → implementation → verification)."
+    - "Hierarchical (1.1, 1.2 ...); each task completable in one
+      session."
+    - "Always include a verification task referencing the spec
+      scenarios."
+  apply:
+    - "Read every linked SKILL.md BEFORE editing code (see
+      .atl/skills-applicability.md)."
+    - "Run bunx tsc --noEmit and bun run lint after every
+      implementation task."
+    - "Smoke test on at least one target (iOS sim preferred, Android
+      emulator, or web)."
+    - "Never modify .pi/prompts/opsx-*.md or .pi/skills/openspec-*
+      those are OpenSpec scaffolded integration content; modify the
+      OpenSpec install instead."
+    - "Never edit .expo/, node_modules/, example/ (untracked reference
+      template)."
+    - >-
+      Conventional Commits:
+      feat(scope):, fix(scope):, chore:, docs:, refactor:, perf:,
+      test:.
+    - >-
+      One PR = one purpose. Branch prefix mirrors commit type
+      (feat/, fix/, chore/, docs/, refactor/, perf/, test/).
+  verify:
+    - "Walk every scenario from the delta spec; mark each pass/fail
+      with evidence."
+    - "Compare implementation against the design's decision log."
+    - >-
+      Native UI: take a screenshot per target (iOS sim + Android
+      emulator + web) for any change that adds or modifies a screen.
+    - "Re-run bunx tsc --noEmit, bun run lint, and bun run start --web
+      smoke."
+    - >-
+      If verification fails: write a verify-report.md section with
+      the failure mode and the next action (fix task vs. amend spec).
+  archive:
+    - >-
+      Merge delta specs into openspec/specs/{domain}/spec.md; archive
+      the change folder as
+      openspec/changes/archive/YYYY-MM-DD-{change-name}/.
+
+# Testing capabilities — declared upfront so sdd-init / sdd-verify know
+# what is runnable today.
+testing:
+  unit: null
+  integration: null
+  e2e: null
+  lint: "bun run lint"
+  typecheck: "bunx tsc --noEmit"
+  smoke_web: "bun run start --web"
+  smoke_ios: "bun run start --ios"
+  smoke_android: "bun run start --android"
+  strict_tdd: false
